@@ -46,6 +46,8 @@ ui <- fluidPage(
             # Output: Data file ----
             tabsetPanel( #type = "tabs",
                 tabPanel("Welcome"),
+                tabPanel("Plots",
+                         plotOutput("prevalence_plot")),
                 tabPanel("Results Table",
                          uiOutput("dataframe")
                          ),

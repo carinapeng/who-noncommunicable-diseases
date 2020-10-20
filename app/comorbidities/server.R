@@ -60,6 +60,10 @@ server <- function(input, output) {
     observeEvent(input$saveBtn,
                  write.csv(hot_to_r(input$dataframe1), file = "data/EditedGBD.csv"))
     
-    
+    output$prevalence_plot <- renderPlot({
+        gbd_country() %>%
+        ggplot(aes(x=upper_age, y=percentage_of_population, fill=condition)) +
+            geom_area( )
+    })
   
 }
