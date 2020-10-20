@@ -31,6 +31,10 @@ ui <- fluidPage(
         # Sidebar panel for inputs ----
         sidebarPanel(
             
+            selectInput("selectdata", "Please select prevalence data",
+                        list("GBD 2017" = "gbd2017", 
+                             "GBD 2019" = "gbd2019",
+                             "Enter your own" = "manual")),
             uiOutput("dropdown_country"),
             uiOutput("dropdown_sex")
             
@@ -43,12 +47,15 @@ ui <- fluidPage(
             tabsetPanel( #type = "tabs",
                 tabPanel("Welcome"),
                 tabPanel("Results Table",
-                         tableOutput("dataframe"),
+                         uiOutput("dataframe")
+                         ),
+                tabPanel("Editable Table",
                          rHandsontableOutput("dataframe1"),
                          br(),
                          actionButton("saveBtn", "Save")
-                         )
+                )
                 
             )
+            
     
 )))

@@ -14,6 +14,8 @@ library(rhandsontable)
 # Define server logic to read selected file ----
 server <- function(input, output) { 
     
+    
+    
     output$dropdown_country <- renderUI(
         selectInput("dropdown_country","Select country", choices= 
                         as.character(unique(gbd$country)))
@@ -38,17 +40,25 @@ server <- function(input, output) {
             
     })
     
-    output$dataframe <- renderTable(digits = 6,
-                                    {
-                                        head(gbd_country())
-                                    })
+    dataframe1 <- renderRHandsontable({
+        rhandsontable(gbd_country())
+    })
+    
+    output$dataframe <- renderTable({
+        if (input$selectdata == "gbd2017")
+            return(head(gbd_country()))
+        else if (input$selectdata == "gbd2019")
+            return("Not available")
+        else if (input$selectdata == "manual")
+            return("Not available")
+    })
     
     output$dataframe1 <- renderRHandsontable({
         rhandsontable(gbd_country())
     })
     
     observeEvent(input$saveBtn,
-                 write.csv(hot_to_r(input$dataframe1), file = "data/EditedGDB.csv"))
+                 write.csv(hot_to_r(input$dataframe1), file = "data/EditedGBD.csv"))
     
     
   
