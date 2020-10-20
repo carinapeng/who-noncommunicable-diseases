@@ -35,14 +35,23 @@ server <- function(input, output) {
     pop_country <- reactive({
         req(input$dropdown_country)
         pop_country <- pop %>%
-            filter(country == "Afghanistan" & sex == "Male") %>%
+            filter(country == input$dropdown_country, sex == input$dropdown_sex) %>%
             select(upper_age, value)
             
+    })
+    
+    joined <- reactive({
+        inner_join(gbd_country(), pop_country()) %>%
+            mutate(people = value * percentage_of_population)
     })
     
     dataframe1 <- renderRHandsontable({
         rhandsontable(gbd_country())
     })
+    
+    #output$test <- renderTable({
+        #joined()
+    #})
     
     output$dataframe <- renderTable({
         if (input$selectdata == "gbd2017")
@@ -61,8 +70,14 @@ server <- function(input, output) {
                  write.csv(hot_to_r(input$dataframe1), file = "data/EditedGBD.csv"))
     
     output$prevalence_plot <- renderPlot({
-        gbd_country() %>%
-        ggplot(aes(x=upper_age, y=percentage_of_population, fill=condition)) +
+        joined() %>%
+            ggplot(aes(x = upper_age, y = percentage_of_population, fill = condition)) +
+            geom_area()
+    })
+    
+    output$population_plot <- renderPlot({
+        joined() %>%
+            ggplot(aes(x=upper_age, y=people, fill=condition)) +
             geom_area( )
     })
   

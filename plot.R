@@ -7,32 +7,32 @@ library(ggplot2)
 library(dplyr)
 
 # Read data
-gbd <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 3)
-pop <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 4)
+gbd0 <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 3)
+pop0 <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 4)
 
 # Clean data
-gbd_country <- gbd %>% 
+gbd_country0 <- gbd0 %>% 
   clean_names() %>%
   filter(country == "Afghanistan", sex == "Male")
 
-pop_country <- pop %>% 
+pop_country0 <- pop0 %>% 
   clean_names() %>%
   filter(country == "Afghanistan" & sex == "Male") %>%
   select(upper_age, value)
 
 # Join GBD and Population data
 
-joined <- inner_join(pop_country, gbd_country) %>%
+joined0 <- inner_join(pop_country0, gbd_country0) %>%
   mutate(people = value * percentage_of_population)
 
 
 # Plot a stacked density plot
 
-plot_prev <- joined %>% 
+plot_prev0 <- joined0 %>% 
   ggplot(aes(x=upper_age, y=percentage_of_population, fill=condition)) +
   geom_area( )
 
-plot_pop <- joined %>%
+plot_pop0 <- joined0 %>%
   ggplot(aes(x=upper_age, y=people, fill=condition)) +
   geom_area( )
 
