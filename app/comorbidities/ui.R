@@ -53,7 +53,10 @@ ui <- fluidPage(
             
             # Output: Data file ----
             tabsetPanel( #type = "tabs",
-                tabPanel("Welcome"
+                tabPanel("Welcome",
+                         withMathJax(includeMarkdown(
+                             "welcome.md"
+                         ))
                          ),
                 tabPanel("Plots",
                          tableOutput("test"),
