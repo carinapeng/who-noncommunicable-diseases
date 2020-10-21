@@ -12,12 +12,6 @@ library(rhandsontable)
 
 setwd("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases")
 
-# Load data
-gbd <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 3) %>%
-    clean_names()
-pop <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 4) %>%
-    clean_names()
-
 
 # Define UI for data upload app ----
 ui <- fluidPage(
@@ -37,6 +31,20 @@ ui <- fluidPage(
                              "Enter your own" = "manual")),
             uiOutput("dropdown_country"),
             uiOutput("dropdown_sex")
+            # checkboxGroupInput("checkbox", "Please check the conditions to display", 
+            #                    choices = list("Cardiovascular diseases" = "cardiovascular", 
+            #                                   "Chronic kidney diseases" = "kidney", 
+            #                                   "Chronic respiratory diseases" = "respiratory",
+            #                                   "Cirhossis and other chronic liver disease" = "cirhossis",
+            #                                   "Diabetes mellitus" = "diabetes",
+            #                                   "Cancers with direct immunosuppression" = "cancer_dir",
+            #                                   "Cancers with possible immunosuppression" = "cancer_poss",
+            #                                   "HIV/AIDS" = "hiv_aids",
+            #                                   "Non-latent TB" = "tb",
+            #                                   "Chronic neurological disorders" = "neuro",
+            #                                   "Sickle cell disorders" = "sickle_cell"
+            #                                   ), 
+            #                    selected = "cardiovascular")
             
         ),
         
@@ -45,11 +53,13 @@ ui <- fluidPage(
             
             # Output: Data file ----
             tabsetPanel( #type = "tabs",
-                tabPanel("Welcome"),
+                tabPanel("Welcome"
+                         ),
                 tabPanel("Plots",
                          tableOutput("test"),
                          plotOutput("prevalence_plot"),
-                         plotOutput("population_plot")
+                         plotOutput("population_plot"),
+                         plotOutput("facet_plot")
                          ),
                 
                 tabPanel("Results Table",

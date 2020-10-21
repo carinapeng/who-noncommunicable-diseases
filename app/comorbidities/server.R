@@ -14,7 +14,11 @@ library(rhandsontable)
 # Define server logic to read selected file ----
 server <- function(input, output) { 
     
-    
+  # Load data
+  gbd <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 3) %>%
+    clean_names()
+  pop <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 4) %>%
+    clean_names()
     
     output$dropdown_country <- renderUI(
         selectInput("dropdown_country","Select country", choices= 
@@ -42,7 +46,8 @@ server <- function(input, output) {
     
     joined <- reactive({
         inner_join(gbd_country(), pop_country()) %>%
-            mutate(people = value * percentage_of_population)
+        mutate(people = value * percentage_of_population,
+               perc = percentage_of_population * 100)
     })
     
     dataframe1 <- renderRHandsontable({
@@ -55,7 +60,7 @@ server <- function(input, output) {
     
     output$dataframe <- renderTable({
         if (input$selectdata == "gbd2017")
-            return(head(gbd_country()))
+            return((gbd_country()))
         else if (input$selectdata == "gbd2019")
             return("Not available")
         else if (input$selectdata == "manual")
@@ -63,7 +68,7 @@ server <- function(input, output) {
     })
     
     output$dataframe1 <- renderRHandsontable({
-        rhandsontable(gbd_country())
+        rhandsontable(gbd_country()) 
     })
     
     observeEvent(input$saveBtn,
@@ -71,14 +76,40 @@ server <- function(input, output) {
     
     output$prevalence_plot <- renderPlot({
         joined() %>%
-            ggplot(aes(x = upper_age, y = percentage_of_population, fill = condition)) +
-            geom_area()
+        ggplot(aes(x=upper_age, y=perc, color=condition)) +
+        geom_line(size=2, alpha=1) +
+        geom_point(size = 2, color = "black") +
+        scale_color_viridis(discrete=TRUE, option = "magma") +
+        theme_minimal() +
+        labs(color = "Conditions",
+             title = "Prevalence of underlying conditions by age") +
+        ylab("Percentage of Population") +
+        xlab("Age (years)") 
+    })
+    
+    output$facet_plot <- renderPlot({
+      joined() %>%
+        ggplot(aes(x=upper_age, y=perc, color=condition)) +
+        geom_line(size=2, alpha=1) +
+        scale_color_viridis(discrete=TRUE, option = "magma") + 
+        theme_minimal() +
+        labs(color = "Conditions",
+             title = "Prevalence of underlying conditions by age") +
+        ylab("Percentage of Population") +
+        xlab("Age (years)") +
+        facet_wrap(~condition, scales="free")
     })
     
     output$population_plot <- renderPlot({
         joined() %>%
-            ggplot(aes(x=upper_age, y=people, fill=condition)) +
-            geom_area( )
+        ggplot(aes(x=upper_age, y=people, fill=condition)) +
+        geom_area(alpha=0.6 , size=1, colour="black") +
+        scale_fill_viridis(discrete = TRUE, option = "magma") +
+        theme_minimal() +
+        labs(fill = "Conditions",
+             title="Population (millions) with underlying conditions by age",
+             x = "Age (years)",
+             y = "Population (millions)")
     })
   
 }
