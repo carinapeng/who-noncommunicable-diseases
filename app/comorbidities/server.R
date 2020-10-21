@@ -68,7 +68,11 @@ server <- function(input, output) {
     })
     
     output$dataframe1 <- renderRHandsontable({
-        rhandsontable(gbd_country()) 
+        rhandsontable(gbd_country()) %>%
+        hot_cols(columnSorting = TRUE, 
+                 colWidths = 100) %>%
+        hot_rows(rowHeights = 20) %>%
+        hot_heatmap(cols = 6, color_scale = c("#ff9d8b", "#dcedc1"))
     })
     
     observeEvent(input$saveBtn,
