@@ -9,6 +9,7 @@ library(janitor)
 library(ggplot2)
 library(dplyr)
 library(rhandsontable)
+library(viridis)
 
 
 # Define server logic to read selected file ----
@@ -72,6 +73,7 @@ server <- function(input, output) {
         hot_cols(columnSorting = TRUE, 
                  colWidths = 100) %>%
         hot_rows(rowHeights = 20) %>%
+        # hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
         hot_heatmap(cols = 6, color_scale = c("#ff9d8b", "#dcedc1"))
     })
     

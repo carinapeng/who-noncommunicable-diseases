@@ -17,7 +17,7 @@ setwd("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases")
 ui <- fluidPage(
     
     # App title ----
-    titlePanel("Comorbidities Tool"),
+    titlePanel("PAHO / LSHTM"),
     
     # Sidebar layout with input and output definitions ----
     sidebarLayout(
@@ -55,7 +55,7 @@ ui <- fluidPage(
             tabsetPanel( #type = "tabs",
                 tabPanel("Welcome",
                          withMathJax(includeMarkdown(
-                             "welcome.md"
+                             "app/www/welcome.md"
                          ))
                          ),
                 tabPanel("Plots",
