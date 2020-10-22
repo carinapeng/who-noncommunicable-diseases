@@ -16,11 +16,18 @@ library(viridis)
 server <- function(input, output) { 
     
   # Load data
-  gbd <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 3) %>%
+  gbd <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 2) %>%
+    pivot_longer(cols = !c(1:5),
+                 names_to = "country",
+                 values_to = "percentage_of_population") %>%
     clean_names()
-  pop <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 4) %>%
+  
+  pop <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 1) %>%
+    pivot_longer(cols = !c(1, 2, 3, 4, 5),
+                 names_to = "country",
+                 values_to = "value") %>%
     clean_names()
-    
+  
     output$dropdown_country <- renderUI(
         selectInput("dropdown_country","Select country", choices= 
                         as.character(unique(gbd$country)))
@@ -74,7 +81,7 @@ server <- function(input, output) {
                  colWidths = 100) %>%
         hot_rows(rowHeights = 20) %>%
         # hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
-        hot_heatmap(cols = 6, color_scale = c("#ff9d8b", "#dcedc1"))
+        hot_heatmap(cols = 7, color_scale = c("#ff9d8b", "#dcedc1"))
     })
     
     observeEvent(input$saveBtn,

@@ -24,7 +24,7 @@ gbd1 <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/da
 gbd1_pivot <- gbd1 %>%
   pivot_longer(cols = !c(1:5),
                names_to = "country",
-               values_to = "value") %>%
+               values_to = "percentage_of_population") %>%
   clean_names()
 
 afg <- gbd1_pivot %>%
