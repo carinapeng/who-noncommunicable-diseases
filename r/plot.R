@@ -45,23 +45,30 @@ joined0 <- inner_join(pop_country0, gbd_country0) %>%
 #       (1 - filtered$percentage_of_population[10]) *
 #       (1 - filtered$percentage_of_population[11]))
 
-increase_risk0 <- joined0 %>%
+joined0 <- joined0 %>%
   mutate(first = (1-percentage_of_population)) %>%
   group_by(lower_age) %>%
-  summarise(prod = prod(first)) %>%
-  mutate(final = (1-prod))
+  mutate(prod = prod(first)) %>%
+  mutate(final = (1-prod)) %>%
+  mutate(risk_pop = final * value)
 
 # Plot for increased risk population
-increase_risk0 %>%
+plot_risk_pop <- joined0 %>%
+  ggplot(aes(x = lower_age, y = risk_pop)) +
+  geom_point() +
+  geom_line()
+
+plot_risk_prev <- joined0 %>%
   ggplot(aes(x = lower_age, y = final)) +
   geom_point() +
   geom_line()
 
 # Plots
 plot_prev0 <- joined0 %>% 
-  ggplot(aes(x=upper_age, y=perc, color=condition)) +
-  geom_line(size=2, alpha=1) +
-  geom_point(color = "black") +
+  ggplot() +
+  geom_line(aes(x=upper_age, y=perc, color=condition), size=2, alpha=1) +
+  geom_point(aes(x=upper_age, y=perc, color=condition), color = "black") +
+  geom_line(aes(x=upper_age, y=(final*100)), size=2, alpha=1, color = "orange") +
   scale_color_viridis(discrete=TRUE, option = "magma") +
   theme_minimal() +
   labs(color = "Conditions",
@@ -69,15 +76,26 @@ plot_prev0 <- joined0 %>%
   ylab("Percentage of Population") +
   xlab("Age (years)") 
 
+plot_risk_pop0 <- joined0 %>%
+  ggplot() +
+  geom_point(aes(x = upper_age, y = value), color = "black") +
+  geom_line(aes(x = upper_age, y = value), size=1, alpha=1) +
+  geom_line(aes(x = upper_age, y = risk_pop), color = "orange", size=1, alpha=1) +
+  theme_minimal() +
+  labs(title = "Population at increased risk of severe COVID-19 disease by age group") +
+  ylab("Population") +
+  xlab("Age (years)")
+
 plot_pop0 <- joined0 %>%
-  ggplot(aes(x=upper_age, y=people, fill=condition)) +
-  geom_area(alpha=0.6 , size=1, colour="black") +
+  ggplot() +
+  geom_area(aes(x=upper_age, y=people, fill=condition), alpha=0.6 , size=1, colour="black") +
   scale_fill_viridis(discrete = TRUE, option = "magma") +
   theme_minimal() +
   labs(fill = "Conditions",
        title="Population (millions) with underlying conditions by age",
        x = "Age (years)",
        y = "Population (millions)")
+  
 
 facet0 <- joined0 %>%
   ggplot(aes(x=upper_age, y=perc, color=condition)) +

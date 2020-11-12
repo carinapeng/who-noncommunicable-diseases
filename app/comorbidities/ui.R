@@ -2,7 +2,7 @@
 library(ggplot2)
 library(markdown)
 library(shiny)
-
+library(tidyr)
 library(readxl)
 library(magrittr)
 library(janitor)
@@ -62,7 +62,8 @@ ui <- fluidPage(
                          tableOutput("test"),
                          plotOutput("prevalence_plot"),
                          plotOutput("population_plot"),
-                         plotOutput("facet_plot")
+                         plotOutput("facet_plot"),
+                         plotOutput("increased_risk_plot")
                          ),
                 
                 tabPanel("Results Table",

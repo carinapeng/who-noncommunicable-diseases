@@ -2,7 +2,7 @@
 library(ggplot2)
 library(markdown)
 library(shiny)
-
+library(tidyr)
 library(readxl)
 library(magrittr)
 library(janitor)
@@ -55,7 +55,12 @@ server <- function(input, output) {
     joined <- reactive({
         inner_join(gbd_country(), pop_country()) %>%
         mutate(people = value * percentage_of_population,
-               perc = percentage_of_population * 100)
+               perc = percentage_of_population * 100) %>%
+        mutate(first = (1-percentage_of_population)) %>%
+        group_by(lower_age) %>%
+        mutate(prod = prod(first)) %>%
+        mutate(final = (1-prod)) %>%
+        mutate(risk_pop = final * value)
     })
     
     dataframe1 <- renderRHandsontable({
@@ -89,9 +94,10 @@ server <- function(input, output) {
     
     output$prevalence_plot <- renderPlot({
         joined() %>%
-        ggplot(aes(x=upper_age, y=perc, color=condition)) +
-        geom_line(size=2, alpha=1) +
-        geom_point(size = 2, color = "black") +
+        ggplot() +
+        geom_line(aes(x=upper_age, y=perc, color=condition), size=2, alpha=1) +
+        geom_point(aes(x=upper_age, y=perc, color=condition), color = "black") +
+        geom_line(aes(x=upper_age, y=(final*100)), size=2, alpha=1, color = "orange") +
         scale_color_viridis(discrete=TRUE, option = "magma") +
         theme_minimal() +
         labs(color = "Conditions",
@@ -123,6 +129,18 @@ server <- function(input, output) {
              title="Population (millions) with underlying conditions by age",
              x = "Age (years)",
              y = "Population (millions)")
+    })
+    
+    output$increased_risk_plot <- renderPlot({
+      joined() %>%
+        ggplot() +
+        geom_point(aes(x = upper_age, y = value), color = "black") +
+        geom_line(aes(x = upper_age, y = value), size=1, alpha=1) +
+        geom_line(aes(x = upper_age, y = risk_pop), color = "orange", size=1, alpha=1) +
+        theme_minimal() +
+        labs(title = "Population at increased risk of severe COVID-19 disease by age group") +
+        ylab("Population") +
+        xlab("Age (years)")
     })
   
 }
