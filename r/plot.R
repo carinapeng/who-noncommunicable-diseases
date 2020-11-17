@@ -110,23 +110,70 @@ facet0 <- joined0 %>%
 
 
 # Pyramid Plot
-library(XML)
-library(reshape2)
-library(ggplot2)
-library(plyr)
 
-gbd %>%
-  filter(country == "Argentina") %>%
-  filter(sex != "Both") %>%
-  ggplot(aes(x = percentage_of_population, y = sex, fill = condition)) + 
-  geom_bar(subset = .(condition == "Cardiovascular diseases"), stat = "identity") + 
-  geom_bar(subset = .(condition == "Chronic kidney diseases"), stat = "identity") + 
-  # scale_y_continuous(breaks = seq(-15000000, 15000000, 5000000), 
-  #                    labels = paste0(as.character(c(seq(15, 0, -5), seq(5, 15, 5))), "m")) + 
-  coord_flip() + 
-  #scale_fill_brewer(palette = "Set1") + 
-  theme_bw()
+# Load data
+gbd <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 2) %>%
+  pivot_longer(cols = !c(1:5),
+               names_to = "country",
+               values_to = "percentage_of_population") %>%
+  clean_names()
 
+pop <- read_excel("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases/data/Input tables for Carina_6Oct2020.xlsx", sheet = 1) %>%
+  pivot_longer(cols = !c(1, 2, 3, 4, 5),
+               names_to = "country",
+               values_to = "value") %>%
+  clean_names()
+
+# Join population and GBD data
+joined <- inner_join(gbd, pop) %>%
+  mutate(people = value * percentage_of_population,
+         perc = percentage_of_population * 100) %>%
+  rename(age = gbd_location_name)
+
+# Order age group
+joined$age <- as.factor(joined$age)
+joined$age <- factor(joined$age, levels=unique(joined$age), ordered=TRUE)
+
+# Data for pyramid plot (prevalence)
+pyramid_data0 <- joined %>%
+  filter(condition == "Cardiovascular diseases" & country == "Afghanistan" & sex != "Both") %>%
+  mutate(popPerc = case_when(sex == "Male" ~round(percentage_of_population*100,2),
+                             TRUE ~-round(percentage_of_population*100,2)),
+    signal = case_when(sex == "Male" ~1,
+                            TRUE~-1))
+
+# Produce prevalence pyramid plot
+pyramid_plot1 <- pyramid_data0 %>%
+  ggplot() +
+  geom_bar(aes(x=popPerc, y=age, fill=sex), stat = "identity") +
+  scale_fill_manual(name="", values=c("#F2BC94", "#104c91")) +
+  scale_x_continuous(breaks = seq(-50, 50, 25),
+                     labels = function(x)paste(x, "%")) +
+  labs(x="Prevalence (%)", y="Age Group", title="Cardiovascular Diseases Prevalece Pyramid of Afghanistan",
+       subtitle=paste("Total population with cardiovascular diseases:", format(sum(pyramid_data0$people), big.mark = ","))) +
+  theme_minimal()
+
+# Data for pyramid plot (total population)
+filtered_pop_data <- pop %>%
+  filter(country == "Afghanistan" & sex == "Both") 
+
+pyramid_data1 <- joined %>%
+  filter(condition == "Cardiovascular diseases" & country == "Afghanistan" & sex != "Both") %>%
+  mutate(percTotal = case_when(sex == "Male" ~round((people/sum(filtered_pop_data$value))*100,2),
+                             TRUE ~-round((people/sum(filtered_pop_data$value))*100,2)),
+         signal = case_when(sex == "Male" ~1,
+                            TRUE~-1))
+
+# Produce total population pyrmaid plot
+pyramid_plot2 <- pyramid_data1 %>%
+  ggplot() +
+  geom_bar(aes(x=percTotal, y=age, fill=sex), stat="identity")+
+  scale_fill_manual(name="", values=c("#F2BC94", "#104c91")) +
+  scale_x_continuous(breaks = seq(-0.2, 0.2, 0.1),
+                     labels = function(x)paste(x, "%")) +
+  labs(x="Population (%)", y="Age Group", title="Cardiovascular Diseases Population Pyramid of Afghanistan",
+       subtitle=paste("Total population with cardiovascular diseases:", format(sum(pyramid_data1$people), big.mark = ","))) +
+  theme_minimal()
 
 
 
