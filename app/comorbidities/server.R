@@ -32,7 +32,8 @@ server <- function(input, output) {
         group_by(lower_age) %>%
         mutate(prod = prod(first)) %>%
         mutate(final = (1-prod)) %>%
-        mutate(risk_pop = final * value)
+        mutate(risk_pop = final * value) %>%
+        mutate(prevalence = round((final * 100),2))
     })
     
     output$test <- renderDataTable(joined)
@@ -62,12 +63,12 @@ server <- function(input, output) {
     observeEvent(input$saveBtn,
                  write.csv(hot_to_r(input$dataframe1), file = "data/EditedGBD.csv"))
     
-    output$prevalence_plot <- renderPlot({
+    output$prevalence_plot <- renderPlotly({
         risk_df() %>%
         ggplot() +
-        geom_line(aes(x=upper_age, y=perc, color=condition), size=2, alpha=1) +
-        geom_point(aes(x=upper_age, y=perc, color=condition), color = "black") +
-        geom_line(aes(x=upper_age, y=(final*100)), size=2, alpha=1, color = "orange") +
+        geom_line(aes(x=age, y=perc, group = condition, color = condition), size=2, alpha=1) +
+        # geom_point(aes(x=upper_age, y=perc, color=condition), color = "black") +
+        geom_line(aes(x=age, y=prevalence, group = condition), size=2, alpha=1, color = "orange") +
         scale_color_viridis(discrete=TRUE, option = "magma") +
         theme_minimal() +
         labs(color = "Conditions",
@@ -76,7 +77,7 @@ server <- function(input, output) {
         xlab("Age (years)") 
     })
     
-    output$facet_plot <- renderPlot({
+    output$facet_plot <- renderPlotly({
       joined_country() %>%
         ggplot(aes(x=upper_age, y=perc, color=condition)) +
         geom_line(size=2, alpha=1) +
@@ -89,7 +90,7 @@ server <- function(input, output) {
         facet_wrap(~condition, scales="fixed")
     })
     
-    output$population_plot <- renderPlot({
+    output$population_plot <- renderPlotly({
         joined_country() %>%
         ggplot(aes(x=upper_age, y=people, fill=condition)) +
         geom_area(alpha=0.6 , size=1, colour="black") +
@@ -101,7 +102,7 @@ server <- function(input, output) {
              y = "Population (millions)")
     })
     
-    output$increased_risk_plot <- renderPlot({
+    output$increased_risk_plot <- renderPlotly({
       risk_df() %>%
         ggplot() +
         geom_point(aes(x = upper_age, y = value), color = "black") +
@@ -122,7 +123,7 @@ server <- function(input, output) {
                                   TRUE~-1))
     })
     
-    output$pyramid_plot1 <- renderPlot({
+    output$pyramid_plot1 <- renderPlotly({
     pyramid_data() %>%
         ggplot() +
         geom_bar(aes(x=popPerc, y=age, fill=sex), stat = "identity") +
@@ -153,7 +154,7 @@ server <- function(input, output) {
     
     })
     
-    output$pyramid_plot2 <- renderPlot({
+    output$pyramid_plot2 <- renderPlotly({
       pyramid_data2() %>%
         ggplot() +
         geom_bar(aes(x=percTotal, y=age, fill=sex), stat="identity")+
@@ -162,7 +163,7 @@ server <- function(input, output) {
                            labels = function(x)paste(x, "%")) +
         labs(x="Population (%)", y="Age Group", 
              title=paste(input$pyramid_select, "Population Pyramid of Afghanistan"),
-             subtitle=paste("Total population with", input$pyramid_select, "-", format(sum(pyramid_data2()$people), big.mark = ","))) +
+             subtitle=paste("Total population with", input$pyramid_select, ":", format(sum(pyramid_data2()$people), big.mark = ","))) +
         theme_minimal()
     })
     

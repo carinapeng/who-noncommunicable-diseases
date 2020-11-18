@@ -9,6 +9,8 @@ library(janitor)
 library(ggplot2)
 library(dplyr)
 library(rhandsontable)
+library(viridis)
+library(plotly)
 
 setwd("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases")
 
@@ -35,20 +37,6 @@ ui <- fluidPage(
                              "Enter your own" = "manual"))),
             selectInput("dropdown_country", "Select country", choices = c(Choice="", unique(gbd$country))),
             selectInput("dropdown_sex", "Select Sex", choices = c(Choice="", unique(gbd$sex)))
-            # checkboxGroupInput("checkbox", "Please check the conditions to display", 
-            #                    choices = list("Cardiovascular diseases" = "cardiovascular", 
-            #                                   "Chronic kidney diseases" = "kidney", 
-            #                                   "Chronic respiratory diseases" = "respiratory",
-            #                                   "Cirhossis and other chronic liver disease" = "cirhossis",
-            #                                   "Diabetes mellitus" = "diabetes",
-            #                                   "Cancers with direct immunosuppression" = "cancer_dir",
-            #                                   "Cancers with possible immunosuppression" = "cancer_poss",
-            #                                   "HIV/AIDS" = "hiv_aids",
-            #                                   "Non-latent TB" = "tb",
-            #                                   "Chronic neurological disorders" = "neuro",
-            #                                   "Sickle cell disorders" = "sickle_cell"
-            #                                   ), 
-            #                    selected = "cardiovascular")
             
         ),
         
@@ -63,16 +51,16 @@ ui <- fluidPage(
                          )
                          ),
                 tabPanel("Plots",
-                         plotOutput("prevalence_plot"),
-                         plotOutput("population_plot"),
-                         plotOutput("facet_plot"),
-                         plotOutput("increased_risk_plot")
+                         plotlyOutput("prevalence_plot"),
+                         plotlyOutput("population_plot"),
+                         plotlyOutput("facet_plot"),
+                         plotlyOutput("increased_risk_plot")
                          ),
                 
                 tabPanel("Pyramid",
                          selectInput("pyramid_select", "Conditions", choices=c(Choose="", unique(gbd$condition)), selectize = FALSE),
-                         plotOutput("pyramid_plot1"),
-                         plotOutput("pyramid_plot2")
+                         plotlyOutput("pyramid_plot1"),
+                         plotlyOutput("pyramid_plot2")
                          ),
                 tabPanel("Joined",
                          tableOutput("test")),
