@@ -46,18 +46,23 @@ ui <- fluidPage(
             # Output: Data file ----
             tabsetPanel( #type = "tabs",
                 tabPanel("Welcome",
-                         includeMarkdown(
-                             "app/www/welcome.md"
-                         )
+                         withMathJax(includeMarkdown("app/www/welcome.md"))
                          ),
-                tabPanel("Plots",
+                tabPanel("Prevalence",
+                         withMathJax(includeMarkdown("app/www/methodology.md")),
                          plotlyOutput("prevalence_plot"),
+                         plotlyOutput("facet_plot")
+                         ),
+                
+                tabPanel("Population",
+                         withMathJax(includeMarkdown("app/www/population.md")),
                          plotlyOutput("population_plot"),
-                         plotlyOutput("facet_plot"),
+                         hr(),
                          plotlyOutput("increased_risk_plot")
                          ),
                 
                 tabPanel("Pyramid",
+                         withMathJax(includeMarkdown("app/www/pyramid.md")),
                          selectInput("pyramid_select", "Conditions", choices=c(Choose="", unique(gbd$condition)), selectize = FALSE),
                          plotlyOutput("pyramid_plot1"),
                          plotlyOutput("pyramid_plot2")
