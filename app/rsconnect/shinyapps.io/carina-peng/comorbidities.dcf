@@ -1,0 +1,12 @@
+name: comorbidities
+title: comorbidities
+username:
+account: carina-peng
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3268462
+bundleId: 3882308
+url: https://carina-peng.shinyapps.io/comorbidities/
+when: 1605822940.5845
+asMultiple: FALSE
+asStatic: FALSE

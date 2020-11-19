@@ -12,11 +12,9 @@ library(rhandsontable)
 library(viridis)
 library(plotly)
 
-setwd("/Users/carinapeng/PAHO : WHO/who-noncommunicable-diseases")
-
-gbd <- readRDS("gbd.rds")
-pop <- readRDS("pop.rds")
-joined <- readRDS("joined.rds")
+ gbd <- readRDS("data/gbd.rds")
+ pop <- readRDS("data/pop.rds")
+ joined <- readRDS("data/joined.rds")
 
 
 # Define UI for data upload app ----
@@ -46,38 +44,41 @@ ui <- fluidPage(
             # Output: Data file ----
             tabsetPanel( #type = "tabs",
                 tabPanel("Welcome",
-                         withMathJax(includeMarkdown("app/www/welcome.md"))
+                         withMathJax(includeMarkdown("www/welcome.md"))
                          ),
                 tabPanel("Prevalence",
-                         withMathJax(includeMarkdown("app/www/methodology.md")),
+                         withMathJax(includeMarkdown("www/methodology.md")),
                          plotlyOutput("prevalence_plot"),
+                         hr(),
                          plotlyOutput("facet_plot")
                          ),
                 
                 tabPanel("Population",
-                         withMathJax(includeMarkdown("app/www/population.md")),
+                         withMathJax(includeMarkdown("www/population.md")),
                          plotlyOutput("population_plot"),
                          hr(),
                          plotlyOutput("increased_risk_plot")
                          ),
                 
                 tabPanel("Pyramid",
-                         withMathJax(includeMarkdown("app/www/pyramid.md")),
+                         withMathJax(includeMarkdown("www/pyramid.md")),
                          selectInput("pyramid_select", "Conditions", choices=c(Choose="", unique(gbd$condition)), selectize = FALSE),
+                         plotlyOutput("pyramid_plot2"),
+                         uiOutput("pyramid_text2"),
+                         hr(),
                          plotlyOutput("pyramid_plot1"),
-                         plotlyOutput("pyramid_plot2")
-                         ),
-                tabPanel("Joined",
-                         tableOutput("test")),
+                         uiOutput("pyramid_text1"),
+                         )
                 
-                tabPanel("Results Table",
-                         uiOutput("dataframe")
-                         ),
-                tabPanel("Editable Table",
-                         rHandsontableOutput("dataframe1"),
-                         br(),
-                         actionButton("saveBtn", "Save")
-                )
+                # tabPanel("Results Table",
+                #          uiOutput("dataframe")
+                #          ),
+                
+                # tabPanel("Editable Table",
+                #          rHandsontableOutput("dataframe1"),
+                #          br(),
+                #          actionButton("saveBtn", "Save")
+                # )
                 
             )
             
