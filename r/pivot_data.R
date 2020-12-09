@@ -30,6 +30,30 @@ gbd1_pivot <- gbd1 %>%
 afg <- gbd1_pivot %>%
   filter(country == "Afghanistan")
 
+# --------------
+
+joined <- readRDS("./app/data/joined.rds")
+
+x <- joined %>%
+  filter(country == "Argentina", sex == "Both") %>%
+  mutate(prev_perc = round((prev*100),2)) %>%
+  mutate(first_step = (1-prev)) %>%
+  group_by(age) %>%
+  # Create product of first step values
+  mutate(prod = prod(first_step)) %>%
+  # Create final value by subtracting the product value from 1
+  mutate(final_value = (1-prod)) %>%
+  mutate(risk_pop = final_value * pop_total) %>%
+  mutate(risk_prev = round((final_value * 100),2)) %>%
+  mutate(risk_condition = "Increased Risk")
+
+
+y <- x %>%
+  filter(condition == "Cardiovascular diseases") 
+
+risk_value <- sum(y$risk_pop) / sum(y$pop_total)
+print(risk_value)
+
 
 
 
