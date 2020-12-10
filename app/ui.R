@@ -74,7 +74,9 @@ ui <- fluidPage(
                          hr()
                          # plotlyOutput("pyramid_plot1"),
                          # uiOutput("pyramid_text1"),
-                         )
+                         ),
+                tabPanel("Table",
+                         rHandsontableOutput("onecondition_table"))
                 
                 # tabPanel("Results Table",
                 #          uiOutput("dataframe")

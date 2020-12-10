@@ -46,6 +46,7 @@ server <- function(input, output) {
      
    })
    
+   
    output$test <- renderTable(base_data())
     
     output$download_excel <- renderUI({
@@ -127,6 +128,25 @@ server <- function(input, output) {
       return(x)
       
     })
+    
+    output$onecondition_table <- renderRHandsontable(
+      
+      risk_df() %>%
+        head(20) %>%
+        select(country, age, sex, pop_total, risk_pop, risk_prev) %>%
+        mutate(pop_total = format(round(as.numeric(pop_total), 0), big.mark=",")) %>%
+        mutate(risk_pop = format(round(as.numeric(risk_pop), 0), big.mark=",")) %>%
+        rename(
+          Country = country,
+          Age = age,
+          Sex = sex,
+          "Total Population" = pop_total,
+          "Number people with at least 1 NCD" = risk_pop,
+          "Percentage" = risk_prev
+        )  %>%
+        mutate(Percentage = paste(Percentage, "%")) %>%
+        rhandsontable()
+                                               )
     
     # Produce plot of prevalence of different conditions as well as prevalence of increased risk
     output$prevalence_plot <- renderPlotly({
