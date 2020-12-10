@@ -71,9 +71,9 @@ ui <- fluidPage(
                          selectInput("pyramid_select", "Conditions", choices=c(Choose="", unique(gbd$condition)), selectize = FALSE),
                          plotlyOutput("pyramid_plot2"),
                          uiOutput("pyramid_text2"),
-                         hr(),
-                         plotlyOutput("pyramid_plot1"),
-                         uiOutput("pyramid_text1"),
+                         hr()
+                         # plotlyOutput("pyramid_plot1"),
+                         # uiOutput("pyramid_text1"),
                          )
                 
                 # tabPanel("Results Table",

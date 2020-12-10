@@ -204,41 +204,6 @@ server <- function(input, output) {
       ggplotly(p4, tooltip = c("x", "y", "color"))
     })
     
-    pyramid_data <- reactive({
-      joined %>%
-        filter(condition == input$pyramid_select & country == input$dropdown_country & sex != "Both") %>%
-        mutate(prev_perc = round(prev*100), 2) %>%
-        mutate(prev_perc_sex = case_when(sex == "Male" ~prev_perc,
-                                   TRUE ~-prev_perc),
-               signal = case_when(sex == "Male" ~1,
-                                  TRUE~-1))
-    })
-    
-    output$pyramid_plot1 <- renderPlotly({
-      if(input$pyramid_select == "")
-        {}
-      else{
-    p5 <- pyramid_data() %>%
-        ggplot() +
-        geom_bar(aes(x=prev_perc_sex, y=age, group = age, fill=sex), stat = "identity", alpha = 0.7, color = "black") +
-        scale_fill_manual(name="", values=c("#e9a3c9", "#a1d76a")) +
-        labs(
-          x="Prevalence (%)", 
-          y="Age Group",
-          title = paste("Prevalence Pyramid of", input$pyramid_select, "in", input$dropdown_country)
-          ) +
-          theme_minimal()
-        
-        ggplotly(p5, tooltip = c("x", "group"))
-      }
-    })
-    
-    output$pyramid_text1 <- renderUI(
-      if(input$pyramid_select == "") {}
-      else{
-      paste("Total population with", input$pyramid_select, "is", format(sum(pyramid_data()$pop_condition), big.mark = ","))}
-        )
-    
     pyramid_data2 <- reactive({
       
       filtered_pop_data <- pop %>%
@@ -250,6 +215,7 @@ server <- function(input, output) {
                                      TRUE ~-round((pop_condition/sum(filtered_pop_data$pop_total))*100,2)),
                signal = case_when(sex == "Male" ~1,
                                   TRUE~-1))
+      joined1$pop_condition <- round(joined1$pop_condition,0)
       
       return(joined1)
     
@@ -260,13 +226,13 @@ server <- function(input, output) {
       else{
       p6 <- pyramid_data2() %>%
         ggplot() +
-        geom_bar(aes(x=pop_perc, y=age, group = age, fill=sex), stat="identity", alpha = 0.7, color = "black")+
+        geom_bar(aes(x=pop_perc, y=age, group = age, fill=sex, pop_condition=pop_condition), stat="identity", alpha = 0.7, color = "black")+
         scale_fill_manual(name="", values=c("#e9a3c9", "#a1d76a")) +
         scale_x_continuous(breaks = c(-0.2, 0, 0.2)) +
         labs(x="Population (%)", y="Age Group", 
              title=paste("Population Pyramid of", input$pyramid_select, "in", input$dropdown_country)) +
         theme_minimal()
-      ggplotly(p6, tooltip = c("x", "group"))
+      ggplotly(p6, tooltip = c("x", "group", "pop_condition"))
       }
     
     })
