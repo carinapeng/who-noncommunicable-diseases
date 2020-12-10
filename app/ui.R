@@ -11,6 +11,8 @@ library(dplyr)
 library(rhandsontable)
 library(viridis)
 library(plotly)
+library(openxlsx)
+library(xlsx)
 
  gbd <- readRDS("data/gbd.rds")
  pop <- readRDS("data/pop.rds")
@@ -32,9 +34,11 @@ ui <- fluidPage(
             selectInput("selectdata", "Please select prevalence data",
                         c(Choice = "", list("GBD 2017" = "gbd2017", 
                              "GBD 2019" = "gbd2019",
-                             "Enter your own" = "manual"))),
+                             "Upload your own" = "manual"))),
             selectInput("dropdown_country", "Select country", choices = c(Choice="", unique(gbd$country))),
-            selectInput("dropdown_sex", "Select Sex", choices = c(Choice="", unique(gbd$sex)))
+            selectInput("dropdown_sex", "Select Sex", choices = c(Choice="", unique(gbd$sex))),
+            fileInput("file1", "Choose Excel File",
+                      accept = c(".xlsx"))
             
         ),
         
@@ -44,7 +48,9 @@ ui <- fluidPage(
             # Output: Data file ----
             tabsetPanel( #type = "tabs",
                 tabPanel("Welcome",
-                         withMathJax(includeMarkdown("www/welcome.md"))
+                         withMathJax(includeMarkdown("www/welcome.md")),
+                         uiOutput("download_excel"),
+                         tableOutput("test")
                          ),
                 tabPanel("Prevalence",
                          withMathJax(includeMarkdown("www/methodology.md")),

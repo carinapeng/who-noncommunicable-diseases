@@ -19,11 +19,10 @@ server <- function(input, output) {
      req(input$dropdown_country)
      req(input$dropdown_sex)
      joined %>%
-       filter(country == input$dropdown_country, sex == input$dropdown_sex) %>%
-       mutate(prev_perc = round((prev*100),2))
+       filter(country == input$dropdown_country, sex == input$dropdown_sex)
    })
     
-    # # Show readable data after filtered by country and sex of interest
+    # Show readable data after filtered by country and sex of interest
     # output$dataframe <- renderTable({
     #   if (input$selectdata == "gbd2017")
     #         return((joined_country()))
@@ -32,6 +31,38 @@ server <- function(input, output) {
     #     else if (input$selectdata == "manual")
     #         return("Not available")
     # })
+   
+   base_data <- reactive({
+     req(input$dropdown_country)
+     req(input$dropdown_sex)
+     
+     if(!is.null(input$file1)) {
+       return(read.xlsx(input$file1$datapath, 1))
+     } else {
+     return(joined_country())
+     }
+   })
+   
+   output$test <- renderTable(base_data())
+    
+    output$download_excel <- renderUI({
+      if(input$selectdata == "manual") {
+        downloadButton("outputFile", "Download template to Excel")
+      }
+    })
+    
+    output$outputFile <- downloadHandler(
+      filename = function(){
+        paste(input$dropdown_country, input$dropdown_sex, ".xlsx")
+      },
+      content = function(file) {
+        write.xlsx(joined_country(), file)
+      }
+      
+    )
+      
+      
+    
     # 
     # # Create editable table with RHandsontable
     # dataframe1 <- renderRHandsontable({
@@ -52,7 +83,8 @@ server <- function(input, output) {
     
     # Calculate population with increased risk
     risk_df <- reactive({
-      joined_country() %>%
+      base_data() %>%
+        mutate(prev_perc = round((prev*100),2)) %>%
         mutate(first_step = (1-prev)) %>%
         group_by(age) %>%
         # Create product of first step values
@@ -85,7 +117,7 @@ server <- function(input, output) {
     
     # Produce faceted prevalence plot
     output$facet_plot <- renderPlotly({
-      p2 <- joined_country() %>%
+      p2 <- risk_df() %>%
         ggplot(aes(x=age, y=prev_perc, group = condition, color=condition)) +
         facet_wrap(~condition, scales="fixed") +
         geom_line(size=1, alpha=1) +
@@ -104,7 +136,7 @@ server <- function(input, output) {
     
     # Show population with underlying conditions
     output$population_plot <- renderPlotly({
-        p3 <- joined_country() %>%
+        p3 <- base_data() %>%
         ggplot(aes(x=age, y=pop_condition, group = condition, fill=condition)) +
         geom_area(alpha=0.6 , size=1, colour="black") +
         scale_fill_viridis(discrete = TRUE, option = "magma") +
