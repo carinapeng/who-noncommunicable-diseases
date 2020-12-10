@@ -41,6 +41,9 @@ server <- function(input, output) {
      } else {
      return(joined_country())
      }
+     
+     
+     
    })
    
    output$test <- renderTable(base_data())
@@ -83,7 +86,7 @@ server <- function(input, output) {
     
     # Calculate population with increased risk
     risk_df <- reactive({
-      base_data() %>%
+      x <- base_data() %>%
         mutate(prev_perc = round((prev*100),2)) %>%
         mutate(first_step = (1-prev)) %>%
         group_by(age) %>%
@@ -94,12 +97,41 @@ server <- function(input, output) {
         mutate(risk_pop = final_value * pop_total) %>%
         mutate(risk_prev = round((final_value * 100),2)) %>%
         mutate(risk_condition = "Increased Risk")
+      
+      x$age <- factor(
+        x$age,
+        levels = c(
+          "Under 5",
+          "5 to 9",
+          "10 to 14",
+          "15 to 19",
+          "20 to 24",
+          "25 to 29",
+          "30 to 34",
+          "35 to 39",
+          "40 to 44",
+          "45 to 49",
+          "50 to 54",
+          "55 to 59",
+          "60 to 64",
+          "65 to 69",
+          "70 to 74",
+          "75 to 79",
+          "80 to 84",
+          "85 to 89",
+          "90 to 94",
+          "95 plus"
+        )
+      )
+      
+      return(x)
+      
     })
     
     # Produce plot of prevalence of different conditions as well as prevalence of increased risk
     output$prevalence_plot <- renderPlotly({
         p1 <- risk_df() %>%
-        ggplot() +
+        ggplot() + 
         geom_line(aes(x=age, y=prev_perc, group = condition, color = condition), size=1, alpha=1) +
         # Show curve of percent prevalence of increased risk
         geom_line(aes(x=age, y=risk_prev, group = risk_condition), size=1, alpha=1, color = "orange") +
@@ -136,7 +168,7 @@ server <- function(input, output) {
     
     # Show population with underlying conditions
     output$population_plot <- renderPlotly({
-        p3 <- base_data() %>%
+        p3 <- risk_df() %>%
         ggplot(aes(x=age, y=pop_condition, group = condition, fill=condition)) +
         geom_area(alpha=0.6 , size=1, colour="black") +
         scale_fill_viridis(discrete = TRUE, option = "magma") +
